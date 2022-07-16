@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   Row,
@@ -10,14 +10,22 @@ import {
   ListGroupItem,
 } from 'react-bootstrap'
 import Rating from '../components/Rating'
-import products from '../products'
+import axios from 'axios'
 
-const ProductScreen = () => {
-  /* here match is props.match from react-router-dom */
-  const params = useParams()
-  const product = products.find(
-    (p) => p._id === params.id
-  ) /*For each product where product.id is equal to the id in the url */
+const ProductScreen = ({ match }) => {
+  //here match is props.match from react-router-dom
+  const [product, setProduct] = useState({})
+  //const params = useParams()
+  /*const product = products.find((p) => p._id === params.id) //For each product where product.id is equal to the id in the url */
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data } = await axios.get(`/api/products/${match.params.id}`)
+
+      setProduct(data)
+    }
+
+    fetchProduct()
+  }, [])
 
   return (
     <>
