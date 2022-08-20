@@ -91,11 +91,13 @@ const CartScreen = () => {
         <Card>
           <ListGroup variant='flush'>
             <ListGroup.Item>
+              {/* amount of items will be calculated here */}
               <h2>
                 Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 items
               </h2>
               $
+              {/* to update subtotal we would need to accumulate the total from quantity multiplied by price of items, and start MR (acc) from 0. The toFixed(2) method will make sure we will have only 2 decimal after the dot.*/}
               {cartItems
                 .reduce((acc, item) => acc + item.qty * item.price, 0)
                 .toFixed(2)}
