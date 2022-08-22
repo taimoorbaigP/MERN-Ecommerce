@@ -51,7 +51,7 @@ const PlaceOrderScreen = () => {
   // after click placeOrder button we would fire the create order which will take us to orderActions
   const placeOrderHandler = () => {
     dispatch(
-      // it's going to past it through the state and we need to grab it
+      // it's going to pass it through the state and we need to grab it
       createOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,

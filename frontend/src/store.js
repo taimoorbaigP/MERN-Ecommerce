@@ -18,12 +18,7 @@ import {
   userDetailsReducer,
   userUpdateProfileReducer,
 } from './reducers/userReducers'
-import {
-  orderCreateReducer,
-  orderDetailsReducer,
-  orderPayReducer,
-  orderListMyReducer,
-} from './reducers/orderReducers'
+import { orderCreateReducer } from './reducers/orderReducers'
 
 const reducer = combineReducers({
   productList: productListReducer,
@@ -34,11 +29,9 @@ const reducer = combineReducers({
   userDetails: userDetailsReducer,
   userUpdateProfile: userUpdateProfileReducer,
   orderCreate: orderCreateReducer,
-  orderDetails: orderDetailsReducer,
-  orderPay: orderPayReducer,
-  orderListMy: orderListMyReducer,
 })
 
+// getting data from local storage
 const cartItemsFromStorage = localStorage.getItem('cartItems')
   ? JSON.parse(localStorage.getItem('cartItems'))
   : []
