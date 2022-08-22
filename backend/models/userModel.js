@@ -1,7 +1,9 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 
-const userSchema = mongoose.Schema(
+const { Schema, model } = mongoose
+
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -22,13 +24,18 @@ const userSchema = mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 )
-
+// ! We may also define our own custom document instance methods.
+// to not to bring the controller into userController we will do it in userSchema and create a methind called matchPassword
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  // this.password lets us access the password of the user.
   return await bcrypt.compare(enteredPassword, this.password)
 }
 
+// to hash a password before save/create/update
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next()
@@ -38,6 +45,6 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt)
 })
 
-const User = mongoose.model('User', userSchema)
+const User = model('User', userSchema)
 
 export default User

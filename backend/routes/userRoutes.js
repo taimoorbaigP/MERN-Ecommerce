@@ -1,12 +1,13 @@
 import express from 'express'
+import { protect } from '../middleware/authMiddleware.js'
 const router = express.Router()
 import {
   authUser,
-  registerUser,
   getUserProfile,
+  registerUser,
   updateUserProfile,
 } from '../controllers/userController.js'
-import { protect } from '../middleware/authMiddleware.js'
+// we cleaned up it to controllers productController.js
 
 router.route('/').post(registerUser)
 router.post('/login', authUser)

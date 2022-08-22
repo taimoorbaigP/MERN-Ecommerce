@@ -7,6 +7,7 @@ import Message from '../components/Message'
 import { listProducts } from '../actions/productActions'
 
 const HomeScreen = () => {
+  // Hooks
   const dispatch = useDispatch()
 
   const productList = useSelector((state) => state.productList)

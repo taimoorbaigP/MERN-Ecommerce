@@ -1,10 +1,10 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { Card } from 'react-bootstrap'
 import Rating from './Rating'
+import { Link } from 'react-router-dom'
 
+// destructure the prop from products in arguments
 const Product = ({ product }) => {
-  // access the prop(product) which is used is Homscreen
   return (
     <Card className='my-3 p-3 rounded'>
       <Link to={`/product/${product._id}`}>
@@ -17,7 +17,6 @@ const Product = ({ product }) => {
             <strong>{product.name}</strong>
           </Card.Title>
         </Link>
-
         <Card.Text as='div'>
           <Rating
             value={product.rating}

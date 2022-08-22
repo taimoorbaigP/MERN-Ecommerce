@@ -12,11 +12,16 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
-import { createOrder } from '../actions/orderActions.js'
+import { createOrder } from '../actions/orderActions'
 
 const PlaceOrderScreen = () => {
+  // get order from the state
+  const orderCreate = useSelector((state) => state.orderCreate)
+  const { order, success, error } = orderCreate
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  // get the cart from the state
   const cart = useSelector((state) => state.cart)
   // to the end of prices
   const addDecimals = (num) => {
@@ -36,12 +41,6 @@ const PlaceOrderScreen = () => {
     Number(cart.taxPrice)
   ).toFixed(2)
 
-  // get order from the state
-  const orderCreate = useSelector((state) => state.orderCreate)
-  const { order, success, error } = orderCreate
-  // undefined no order created
-  console.log(orderCreate.order)
-
   useEffect(() => {
     if (success) {
       navigate(`/order/${order._id}`)
@@ -51,7 +50,7 @@ const PlaceOrderScreen = () => {
   // after click placeOrder button we would fire the create order which will take us to orderActions
   const placeOrderHandler = () => {
     dispatch(
-      // it's going to pass it through the state and we need to grab it
+      // it's going to past it through the state and we need to grab it
       createOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,

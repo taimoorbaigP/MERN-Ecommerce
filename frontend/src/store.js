@@ -1,26 +1,26 @@
-import {
-  configureStore,
-  combineReducers,
-  applyMiddleware,
-} from '@reduxjs/toolkit'
+import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
-
-// Reducers import
 import {
   productListReducer,
   productDetailsReducer,
-} from './reducers/productReducers.js'
-import { cartReducer } from './reducers/cartReducers.js'
+} from './reducers/productReducers'
+import { cartReducer } from './reducers/cartReducers'
 import {
   userLoginReducer,
   userRegisterReducer,
   userDetailsReducer,
   userUpdateProfileReducer,
 } from './reducers/userReducers'
-import { orderCreateReducer } from './reducers/orderReducers'
+import {
+  orderCreateReducer,
+  orderDetailsReducer,
+  orderPayReducer,
+  orderListMyReducer,
+} from './reducers/orderReducers'
 
 const reducer = combineReducers({
+  // same name as will be used on screens
   productList: productListReducer,
   productDetails: productDetailsReducer,
   cart: cartReducer,
@@ -29,9 +29,11 @@ const reducer = combineReducers({
   userDetails: userDetailsReducer,
   userUpdateProfile: userUpdateProfileReducer,
   orderCreate: orderCreateReducer,
+  orderDetails: orderDetailsReducer,
+  orderPay: orderPayReducer,
+  orderListMy: orderListMyReducer,
 })
 
-// getting data from local storage
 const cartItemsFromStorage = localStorage.getItem('cartItems')
   ? JSON.parse(localStorage.getItem('cartItems'))
   : []
@@ -44,32 +46,20 @@ const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
   ? JSON.parse(localStorage.getItem('shippingAddress'))
   : {}
 
-//initial state
 const initialState = {
   cart: {
     cartItems: cartItemsFromStorage,
     shippingAddress: shippingAddressFromStorage,
   },
-  userLogin: {
-    userInfo: userInfoFromStorage,
-  },
+  userLogin: { userInfo: userInfoFromStorage },
 }
 
 const middleware = [thunk]
 
-const store = configureStore({
-  initialState,
+const store = createStore(
   reducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware(
-      {
-        serializableCheck: {
-          immutableCheck: false,
-          serializableCheck: false,
-        },
-      },
-      composeWithDevTools(applyMiddleware(...middleware))
-    ),
-})
+  initialState,
+  composeWithDevTools(applyMiddleware(...middleware))
+)
 
 export default store

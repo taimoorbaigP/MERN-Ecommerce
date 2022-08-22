@@ -7,6 +7,7 @@ import User from './models/userModel.js'
 import Product from './models/productModel.js'
 import Order from './models/orderModel.js'
 import connectDB from './config/db.js'
+import { async } from 'rxjs'
 
 dotenv.config()
 
@@ -19,16 +20,14 @@ const importData = async () => {
     await User.deleteMany()
 
     const createdUsers = await User.insertMany(users)
-
     const adminUser = createdUsers[0]._id
 
     const sampleProducts = products.map((product) => {
       return { ...product, user: adminUser }
     })
-
     await Product.insertMany(sampleProducts)
 
-    console.log('Data Imported!'.green.inverse)
+    console.log('Data imported!'.green.inverse)
     process.exit()
   } catch (error) {
     console.error(`${error}`.red.inverse)
@@ -42,7 +41,7 @@ const destroyData = async () => {
     await Product.deleteMany()
     await User.deleteMany()
 
-    console.log('Data Destroyed!'.red.inverse)
+    console.log('Data destroyed!'.red.inverse)
     process.exit()
   } catch (error) {
     console.error(`${error}`.red.inverse)

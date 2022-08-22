@@ -1,38 +1,52 @@
 import React, { useEffect } from 'react'
-import { Link, useParams, useLocation, useNavigate } from 'react-router-dom'
+
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
+import {
+  Row,
+  Col,
+  ListGroup,
+  Image,
+  Form,
+  Button,
+  Card,
+  ListGroupItem,
+} from 'react-bootstrap'
 import Message from '../components/Message'
 import { addToCart, removeFromCart } from '../actions/cartActions'
 
 const CartScreen = () => {
-  const { id } = useParams()
-  const productId = id
-
+  const navigate = useNavigate()
+  const params = useParams()
+  const productId = params.id
+  // no more location history or match. for location use hook useLocation
   const location = useLocation()
-  const qty = new URLSearchParams(location.search).get('qty')
-
+  const qty = location.search ? Number(location.search.split('=')[1]) : 1
   const dispatch = useDispatch()
-
   const cart = useSelector((state) => state.cart)
   const { cartItems } = cart
 
-  const navigate = useNavigate()
+  const userLogin = useSelector((state) => state.userLogin)
+  const { userInfo } = userLogin
 
   useEffect(() => {
     if (productId) {
       dispatch(addToCart(productId, qty))
-      navigate('/cart')
     }
-  }, [dispatch, productId, qty, navigate])
+  }, [dispatch, productId, qty])
 
   const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id))
-    navigate('/cart')
   }
 
   const checkoutHandler = () => {
-    navigate('/login?redirect=/shipping')
+    if (userInfo) {
+      navigate('/shipping')
+    } else {
+      navigate('/login')
+    }
+    // console.log('checkout')
   }
 
   return (
@@ -46,7 +60,7 @@ const CartScreen = () => {
         ) : (
           <ListGroup variant='flush'>
             {cartItems.map((item) => (
-              <ListGroup.Item key={item.product}>
+              <ListGroupItem key={item.product}>
                 <Row>
                   <Col md={2}>
                     <Image src={item.image} alt={item.name} fluid rounded />
@@ -65,6 +79,7 @@ const CartScreen = () => {
                         )
                       }
                     >
+                      {/* i want to display [0,1,2,3,4,5] */}
                       {[...Array(item.countInStock).keys()].map((x) => (
                         <option key={x + 1} value={x + 1}>
                           {x + 1}
@@ -82,7 +97,7 @@ const CartScreen = () => {
                     </Button>
                   </Col>
                 </Row>
-              </ListGroup.Item>
+              </ListGroupItem>
             ))}
           </ListGroup>
         )}
@@ -90,7 +105,7 @@ const CartScreen = () => {
       <Col md={4}>
         <Card>
           <ListGroup variant='flush'>
-            <ListGroup.Item>
+            <ListGroupItem>
               {/* amount of items will be calculated here */}
               <h2>
                 Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
@@ -101,17 +116,16 @@ const CartScreen = () => {
               {cartItems
                 .reduce((acc, item) => acc + item.qty * item.price, 0)
                 .toFixed(2)}
-            </ListGroup.Item>
-            <ListGroup.Item>
+            </ListGroupItem>
+            <ListGroupItem className='d-grid gap-2'>
               <Button
                 type='button'
-                className='btn-block'
                 disabled={cartItems.length === 0}
                 onClick={checkoutHandler}
               >
                 Proceed To Checkout
               </Button>
-            </ListGroup.Item>
+            </ListGroupItem>
           </ListGroup>
         </Card>
       </Col>

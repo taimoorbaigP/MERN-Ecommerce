@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
   PRODUCT_LIST_REQUEST,
   PRODUCT_LIST_SUCCESS,
@@ -6,14 +5,14 @@ import {
   PRODUCT_DETAILS_REQUEST,
   PRODUCT_DETAILS_SUCCESS,
   PRODUCT_DETAILS_FAIL,
-} from '../constants/productContants'
-
+} from '../constants/productConstants'
+import axios from 'axios'
+// list products action
 export const listProducts = () => async (dispatch) => {
   try {
+    // means go to product reducers and get the loading to true and product []
     dispatch({ type: PRODUCT_LIST_REQUEST })
-
     const { data } = await axios.get('/api/products')
-
     dispatch({
       type: PRODUCT_LIST_SUCCESS,
       payload: data,
@@ -31,10 +30,9 @@ export const listProducts = () => async (dispatch) => {
 
 export const listProductDetails = (id) => async (dispatch) => {
   try {
+    // means go to product reducers and get the loading to true and product []
     dispatch({ type: PRODUCT_DETAILS_REQUEST })
-
     const { data } = await axios.get(`/api/products/${id}`)
-
     dispatch({
       type: PRODUCT_DETAILS_SUCCESS,
       payload: data,

@@ -1,4 +1,7 @@
 import {
+  USER_DETAILS_FAIL,
+  USER_DETAILS_REQUEST,
+  USER_DETAILS_SUCCESS,
   USER_LOGIN_FAIL,
   USER_LOGIN_REQUEST,
   USER_LOGIN_SUCCESS,
@@ -6,100 +9,103 @@ import {
   USER_REGISTER_FAIL,
   USER_REGISTER_REQUEST,
   USER_REGISTER_SUCCESS,
-  USER_DETAILS_FAIL,
-  USER_DETAILS_REQUEST,
-  USER_DETAILS_SUCCESS,
   USER_UPDATE_PROFILE_FAIL,
   USER_UPDATE_PROFILE_REQUEST,
   USER_UPDATE_PROFILE_SUCCESS,
+  USER_DETAILS_RESET,
 } from '../constants/userConstants'
+import { ORDER_LIST_MY_RESET } from '../constants/orderConstants'
 import axios from 'axios'
 
-//login
 export const login = (email, password) => async (dispatch) => {
   try {
     dispatch({
       type: USER_LOGIN_REQUEST,
     })
-
+    // when we actually send data we want to send in the headers the content type of application / json.
     const config = {
       headers: {
-        Content_Type: 'Application/json',
+        'Content-Type': 'application/json',
       },
     }
-
-    const { data } = await axios.post('/api/users/login', {
-      email,
-      password,
-      config,
-    })
+    // getting the user data as id name email token....
+    const { data } = await axios.post(
+      '/api/users/login',
+      { email, password },
+      config
+    )
 
     dispatch({
       type: USER_LOGIN_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
-
+    // ...setting this data to local storage
     localStorage.setItem('userInfo', JSON.stringify(data))
   } catch (error) {
     dispatch({
       type: USER_LOGIN_FAIL,
-      payload: error.response?.data.message
-        ? error.response.data.message
-        : error.message,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
     })
   }
 }
 
-// logout
+//?  should it be async?
 export const logout = () => (dispatch) => {
   localStorage.removeItem('userInfo')
-  dispatch({
-    type: USER_LOGOUT,
-  })
+  dispatch({ type: USER_LOGOUT })
+  dispatch({ type: USER_DETAILS_RESET })
+  dispatch({ type: ORDER_LIST_MY_RESET })
 }
 
-//register
 export const register = (name, email, password) => async (dispatch) => {
   try {
     dispatch({
       type: USER_REGISTER_REQUEST,
     })
-
+    // when we actually send data we want to send in the headers the content type of application / json.
     const config = {
       headers: {
-        Content_Type: 'Application/json',
+        'Content-Type': 'application/json',
       },
     }
-
-    const { data } = await axios.post('/api/users', {
-      name,
-      email,
-      password,
-      config,
-    })
+    // getting the user data as id name email token....
+    const { data } = await axios.post(
+      '/api/users',
+      // get this data...
+      { name, email, password },
+      config
+    )
 
     dispatch({
       type: USER_REGISTER_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
-
+    // after we registered we should be logged in
     dispatch({
       type: USER_LOGIN_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
 
+    // ...setting this data to local storage
     localStorage.setItem('userInfo', JSON.stringify(data))
   } catch (error) {
     dispatch({
       type: USER_REGISTER_FAIL,
-      payload: error.response?.data.message
-        ? error.response.data.message
-        : error.message,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
     })
   }
 }
 
-//user details
+// to set the token we would need to set getState next to dispatch in async arguments
 export const getUserDetails = (id) => async (dispatch, getState) => {
   try {
     dispatch({
@@ -108,32 +114,33 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
 
     const {
       userLogin: { userInfo },
-    } = getState() // destructure getstate
-
+    } = getState()
+    // when we actually send data we want to send in the headers the content type of application / json.
     const config = {
       headers: {
-        Content_Type: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     }
-
+    // getting the user data as id name email token....
     const { data } = await axios.get(`/api/users/${id}`, config)
 
     dispatch({
       type: USER_DETAILS_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
   } catch (error) {
     dispatch({
       type: USER_DETAILS_FAIL,
-      payload: error.response?.data.message
-        ? error.response.data.message
-        : error.message,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
     })
   }
 }
 
-// update profile
 export const updateUserProfile = (user) => async (dispatch, getState) => {
   try {
     dispatch({
@@ -143,33 +150,41 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
     const {
       userLogin: { userInfo },
     } = getState()
+    // when we actually send data we want to send in the headers the content type of application / json.
 
     const config = {
       headers: {
-        Content_Type: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userInfo.token}`,
       },
     }
-
+    // getting the user data as id name email token....
     const { data } = await axios.put(`/api/users/profile`, user, config)
 
     dispatch({
       type: USER_UPDATE_PROFILE_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
 
     dispatch({
       type: USER_LOGIN_SUCCESS,
+      // ... and passing it as payload
       payload: data,
     })
 
     localStorage.setItem('userInfo', JSON.stringify(data))
   } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message
+    if (message === 'Not authorized, token failed') {
+      dispatch(logout())
+    }
     dispatch({
       type: USER_UPDATE_PROFILE_FAIL,
-      payload: error.response?.data.message
-        ? error.response.data.message
-        : error.message,
+      payload: message,
     })
   }
 }

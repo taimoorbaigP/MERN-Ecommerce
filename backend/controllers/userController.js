@@ -1,13 +1,19 @@
+import User from '../models/userModel.js'
+// to not write the error logic with try/catch use this
 import asyncHandler from 'express-async-handler'
 import generateToken from '../utils/generateToken.js'
-import User from '../models/userModel.js'
+import { request, response } from 'express'
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
 // @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
-
+  // to access the data
+  //    res.send({
+  //     email,
+  //     password
+  // })
   const user = await User.findOne({ email })
 
   if (user && (await user.matchPassword(password))) {
@@ -24,14 +30,14 @@ const authUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    register a new user
+// @desc    Create a new user
 // @route   POST /api/users
 // @access  Public
-
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body
 
   const userExists = await User.findOne({ email })
+
   if (userExists) {
     res.status(400)
     throw new Error('User already exists')
@@ -53,13 +59,15 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    get user profile
+// @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
+  // using out middleware and assigning it to req.user
   const user = await User.findById(req.user._id)
 
   if (user) {
+    // returns the users data
     res.json({
       _id: user._id,
       name: user.name,
@@ -68,24 +76,24 @@ const getUserProfile = asyncHandler(async (req, res) => {
     })
   } else {
     res.status(401)
-    throw Error('Invalid Email or Password')
+    throw new Error('User not found')
   }
 })
 
-// @desc    update user profile
+// @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
+  // using out middleware and assigning it to req.user
   const user = await User.findById(req.user._id)
 
   if (user) {
-    ;(user.name = req.body.name || user.name),
-      (user.email = req.body.email || user.email)
-
+    // returns the users data
+    user.name = req.body.name || user.name
+    user.email = req.body.email || user.email
     if (req.body.password) {
       user.password = req.body.password
     }
-
     const updatedUser = await user.save()
 
     res.json({
@@ -96,8 +104,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       token: generateToken(updatedUser._id),
     })
   } else {
-    res.status(401)
-    throw Error('User not found')
+    res.status(404)
+    throw new Error('User not found')
   }
 })
 
